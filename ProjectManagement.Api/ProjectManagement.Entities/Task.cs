@@ -1,4 +1,5 @@
-﻿using ProjectManagement.Entities.Enums;
+﻿using Newtonsoft.Json;
+using ProjectManagement.Entities.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,8 +19,10 @@ namespace ProjectManagement.Entities
 
         public DateTime CreatedOn { get; set; }
 
+        [JsonIgnore]
         public virtual User AssignedToUser { get; set; }
 
+        [JsonIgnore]
         public virtual Project Project { get; set; }
     }
 }

@@ -1,37 +1,75 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using ProjectManagement.Data;
+using ProjectManagement.Entities;
+using ProjectManagement.Shared;
 using System.Threading.Tasks;
 
 namespace ProjectManagement.Api.Controllers
 {
-    public class BaseController<T> : ControllerBase
+    [Route("api/[controller]")]
+    public class BaseController<T> : ControllerBase where T : BaseEntity
     {
+        private readonly IBaseRepository<T> Repository;
+
+        public BaseController()
+        {
+            Repository = DependencyResolver.Current.GetService<IBaseRepository<T>>();
+        }
+
+        [HttpGet]
         public IActionResult Get()
         {
-            throw new NotImplementedException();
+            return Ok(Repository.Get());
         }
 
+        [HttpGet("{id}")]
         public IActionResult Get(long id)
         {
-            throw new NotImplementedException();
+            T result = Repository.Get(id);
+            if (result is null)
+            {
+                return NoContent();
+            }
+
+            return Ok(result);
         }
 
-        public IActionResult Post()
+        [HttpPost]
+        public async Task<IActionResult> Post(T entity)
         {
-            throw new NotImplementedException();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            T result = await Repository.Add(entity);
+            return Ok(result);
         }
 
-        public IActionResult Put()
+        [HttpPut]
+        public async Task<IActionResult> Put(T entity)
         {
-            throw new NotImplementedException();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            T result = await Repository.Update(entity);
+            return Ok(result);
         }
 
-        public IActionResult Delete()
+        [HttpDelete]
+        public async Task<IActionResult> Delete(long id)
         {
-            throw new NotImplementedException();
-        }
+            T existing = Repository.Get(id);
+            if (existing is null)
+            {
+                return BadRequest();
+            }
 
+            await Repository.Delete(id);
+
+            return Ok();
+        }
     }
 }

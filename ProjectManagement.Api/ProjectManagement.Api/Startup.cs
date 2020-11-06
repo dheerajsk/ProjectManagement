@@ -1,15 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using System.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using ProjectManagement.Shared;
+using ProjectManagement.Data;
+using ProjectManagement.Entities;
 
 namespace ProjectManagement.Api
 {
@@ -25,7 +23,15 @@ namespace ProjectManagement.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddDbContext<ProjectManagementContext>(
+                options =>
+                {
+                    options.UseInMemoryDatabase("ProjectManagement");
+                    options.UseLazyLoadingProxies();
+                }, ServiceLifetime.Transient);
+            DependencyResolver.Init(this.RegisterDependencies(services).BuildServiceProvider());
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,6 +52,16 @@ namespace ProjectManagement.Api
             {
                 endpoints.MapControllers();
             });
+        }
+
+
+        private IServiceCollection RegisterDependencies(IServiceCollection services)
+        {
+            services.AddTransient<IBaseRepository<User>, BaseRepository<User>>();
+            services.AddTransient<IBaseRepository<Project>, BaseRepository<Project>>();
+            services.AddTransient<IBaseRepository<Task>, BaseRepository<Task>>();
+
+            return services;
         }
     }
 }

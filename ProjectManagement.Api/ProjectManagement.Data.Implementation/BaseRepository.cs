@@ -1,37 +1,47 @@
-﻿using ProjectManagement.Data.Interfaces;
-using ProjectManagement.Entities;
-using System;
-using System.Collections.Generic;
+﻿using ProjectManagement.Entities;
+using ProjectManagement.Shared;
 using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace ProjectManagement.Data.Implementation
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
     {
-        public T Add(T entity)
-        {
-            throw new NotImplementedException();
-        }
+        private readonly ProjectManagementContext Context;
 
-        public void Delete(long id)
+        BaseRepository()
         {
-            throw new NotImplementedException();
+            Context = DependencyResolver.Current.GetService<ProjectManagementContext>();
         }
 
         public IQueryable<T> Get()
         {
-            throw new NotImplementedException();
+            return Context.Set<T>();
         }
 
         public T Get(long id)
         {
-            throw new NotImplementedException();
+            return Context.Set<T>().Where(i => i.ID == id).FirstOrDefault();
         }
 
-        public T Update(T entity)
+        public async Task<T> Add(T entity)
         {
-            throw new NotImplementedException();
+            Context.Set<T>().Add(entity);
+            await Context.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task<int> Delete(long id)
+        {
+            Context.Set<T>().Remove(Get(id));
+            return await Context.SaveChangesAsync();
+        }
+
+        public async Task<T> Update(T entity)
+        {
+            Context.Set<T>().Add(entity);
+            await Context.SaveChangesAsync();
+            return entity;
         }
     }
 }
