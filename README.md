@@ -14,7 +14,7 @@ Objective is to make learners familiar how end to end of a .Net Core + React app
 
 # Learning Outcome
 On completion of the project Learners will be familiar with below tools and concepts
-1.	React framework and its features
+1.	Angular framework and its features
 2.	.Net Core framework 
 3.	TDD (Test driven development)
 4.	Web Api
